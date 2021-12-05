@@ -28,7 +28,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
             ""id"": ""99f15309-8e2a-476c-b145-88587544290f"",
             ""actions"": [
                 {
-                    ""name"": ""MouseRotation"",
+                    ""name"": ""CameraRotation"",
                     ""type"": ""Value"",
                     ""id"": ""331e0285-c388-4f25-9427-413c7ff664ad"",
                     ""expectedControlType"": """",
@@ -54,7 +54,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""MouseRotation"",
+                    ""action"": ""CameraRotation"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -76,7 +76,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
 }");
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
-        m_Player_MouseRotation = m_Player.FindAction("MouseRotation", throwIfNotFound: true);
+        m_Player_CameraRotation = m_Player.FindAction("CameraRotation", throwIfNotFound: true);
         m_Player_Boost = m_Player.FindAction("Boost", throwIfNotFound: true);
     }
 
@@ -137,13 +137,13 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     // Player
     private readonly InputActionMap m_Player;
     private IPlayerActions m_PlayerActionsCallbackInterface;
-    private readonly InputAction m_Player_MouseRotation;
+    private readonly InputAction m_Player_CameraRotation;
     private readonly InputAction m_Player_Boost;
     public struct PlayerActions
     {
         private @PlayerControls m_Wrapper;
         public PlayerActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
-        public InputAction @MouseRotation => m_Wrapper.m_Player_MouseRotation;
+        public InputAction @CameraRotation => m_Wrapper.m_Player_CameraRotation;
         public InputAction @Boost => m_Wrapper.m_Player_Boost;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
@@ -154,9 +154,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         {
             if (m_Wrapper.m_PlayerActionsCallbackInterface != null)
             {
-                @MouseRotation.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseRotation;
-                @MouseRotation.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseRotation;
-                @MouseRotation.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseRotation;
+                @CameraRotation.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCameraRotation;
+                @CameraRotation.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCameraRotation;
+                @CameraRotation.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCameraRotation;
                 @Boost.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBoost;
                 @Boost.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBoost;
                 @Boost.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBoost;
@@ -164,9 +164,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
             {
-                @MouseRotation.started += instance.OnMouseRotation;
-                @MouseRotation.performed += instance.OnMouseRotation;
-                @MouseRotation.canceled += instance.OnMouseRotation;
+                @CameraRotation.started += instance.OnCameraRotation;
+                @CameraRotation.performed += instance.OnCameraRotation;
+                @CameraRotation.canceled += instance.OnCameraRotation;
                 @Boost.started += instance.OnBoost;
                 @Boost.performed += instance.OnBoost;
                 @Boost.canceled += instance.OnBoost;
@@ -176,7 +176,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     public PlayerActions @Player => new PlayerActions(this);
     public interface IPlayerActions
     {
-        void OnMouseRotation(InputAction.CallbackContext context);
+        void OnCameraRotation(InputAction.CallbackContext context);
         void OnBoost(InputAction.CallbackContext context);
     }
 }

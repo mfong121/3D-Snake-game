@@ -6,12 +6,13 @@
             "id": "99f15309-8e2a-476c-b145-88587544290f",
             "actions": [
                 {
-                    "name": "MouseRotation",
+                    "name": "CameraRotation",
                     "type": "Value",
                     "id": "331e0285-c388-4f25-9427-413c7ff664ad",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": ""
+                    "interactions": "",
+                    "initialStateCheck": true
                 },
                 {
                     "name": "Boost",
@@ -19,7 +20,8 @@
                     "id": "61db430d-3622-4f0d-a18a-82206a2cdd2d",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": ""
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -30,7 +32,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "MouseRotation",
+                    "action": "CameraRotation",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
