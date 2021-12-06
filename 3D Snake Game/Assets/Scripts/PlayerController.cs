@@ -10,12 +10,10 @@ public class PlayerController: MonoBehaviour
     [SerializeField]
     private float moveSpeed = 2f;
 
-    private float boostMultiplier = 2f;
+    public float boostMultiplier = 2f;
+    public bool speedBoostActive = false;
 
-    //Needs to be lower for larger objects, smaller for small objects
-    private float rotationSpeedInDegrees = 4f;
     
-    // Start is called before the first frame update
     void Awake()
     {
         playerControls = new PlayerControls();
@@ -25,9 +23,6 @@ public class PlayerController: MonoBehaviour
     {
         movement = playerControls.Player.CameraRotation;
         movement.Enable();
-
-        playerControls.Player.CameraRotation.performed += rotateCamera;
-        playerControls.Player.CameraRotation.Enable();
 
         playerControls.Player.Boost.started += speedBoostStarted;
         playerControls.Player.Boost.canceled += speedBoostCancelled;
@@ -40,29 +35,20 @@ public class PlayerController: MonoBehaviour
         playerControls.Player.Boost.Disable();
     }
 
-    private void rotateCamera(InputAction.CallbackContext obj)
-    {
-        Vector2 deltaMousePos = playerControls.Player.CameraRotation.ReadValue<Vector2>();
 
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, transform.rotation * Quaternion.Euler(-deltaMousePos.y, deltaMousePos.x, 0),rotationSpeedInDegrees);
-        /*var rotationDirection = Vector3.RotateTowards(transform.forward, new Vector3(transform.position.x + movementVector.x, transform.position.y + movementVector.y, transform.position.z), rotationSpeedInDegrees, 0);*/
-        transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 0);
-
-        /*Debug.DrawRay(transform.position, rotationDirection, Color.red);
-        transform.rotation = Quaternion.LookRotation(rotationDirection);*/
-    }
 
     private void speedBoostStarted(InputAction.CallbackContext obj)
     {
         moveSpeed *= boostMultiplier;
-        rotationSpeedInDegrees /= 2*boostMultiplier;
+        speedBoostActive = true;
     }
 
     private void speedBoostCancelled(InputAction.CallbackContext obj)
     {
         moveSpeed /= boostMultiplier;
-        rotationSpeedInDegrees *= 2*boostMultiplier;
+        speedBoostActive = false;
     }
+
 
     // Update is called once per frame
     void Update()
