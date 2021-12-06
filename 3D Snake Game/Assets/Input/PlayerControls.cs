@@ -28,7 +28,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
             ""id"": ""99f15309-8e2a-476c-b145-88587544290f"",
             ""actions"": [
                 {
-                    ""name"": ""CameraRotation"",
+                    ""name"": ""MouseCameraRotation"",
                     ""type"": ""Value"",
                     ""id"": ""331e0285-c388-4f25-9427-413c7ff664ad"",
                     ""expectedControlType"": """",
@@ -53,6 +53,15 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""KeyboardCameraRotation"",
+                    ""type"": ""Value"",
+                    ""id"": ""6b397ec8-afe2-4e1a-8c1f-75746f221384"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -63,7 +72,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""CameraRotation"",
+                    ""action"": ""MouseCameraRotation"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -71,6 +80,17 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""b628dd0b-045b-4729-8fa4-e993cdb88eda"",
                     ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Boost"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ce2405c9-ea13-411e-aeec-af00eb25fc4e"",
+                    ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -110,6 +130,61 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""action"": ""Roll"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""4cfcebd7-abd0-4c85-894b-6bc6d23d73b5"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""KeyboardCameraRotation"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""bf7fbc74-4660-43f8-beae-2b93f3924e79"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""KeyboardCameraRotation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""51e41d2b-cebd-470a-887c-e92322964442"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""KeyboardCameraRotation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""50997053-3273-4f08-83d6-4a390c84d8c8"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""KeyboardCameraRotation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""7d3f3eb5-c2c0-49ef-82b7-230034e4471e"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""KeyboardCameraRotation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -118,9 +193,10 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
 }");
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
-        m_Player_CameraRotation = m_Player.FindAction("CameraRotation", throwIfNotFound: true);
+        m_Player_MouseCameraRotation = m_Player.FindAction("MouseCameraRotation", throwIfNotFound: true);
         m_Player_Boost = m_Player.FindAction("Boost", throwIfNotFound: true);
         m_Player_Roll = m_Player.FindAction("Roll", throwIfNotFound: true);
+        m_Player_KeyboardCameraRotation = m_Player.FindAction("KeyboardCameraRotation", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -180,16 +256,18 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     // Player
     private readonly InputActionMap m_Player;
     private IPlayerActions m_PlayerActionsCallbackInterface;
-    private readonly InputAction m_Player_CameraRotation;
+    private readonly InputAction m_Player_MouseCameraRotation;
     private readonly InputAction m_Player_Boost;
     private readonly InputAction m_Player_Roll;
+    private readonly InputAction m_Player_KeyboardCameraRotation;
     public struct PlayerActions
     {
         private @PlayerControls m_Wrapper;
         public PlayerActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
-        public InputAction @CameraRotation => m_Wrapper.m_Player_CameraRotation;
+        public InputAction @MouseCameraRotation => m_Wrapper.m_Player_MouseCameraRotation;
         public InputAction @Boost => m_Wrapper.m_Player_Boost;
         public InputAction @Roll => m_Wrapper.m_Player_Roll;
+        public InputAction @KeyboardCameraRotation => m_Wrapper.m_Player_KeyboardCameraRotation;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -199,36 +277,43 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         {
             if (m_Wrapper.m_PlayerActionsCallbackInterface != null)
             {
-                @CameraRotation.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCameraRotation;
-                @CameraRotation.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCameraRotation;
-                @CameraRotation.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCameraRotation;
+                @MouseCameraRotation.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseCameraRotation;
+                @MouseCameraRotation.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseCameraRotation;
+                @MouseCameraRotation.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseCameraRotation;
                 @Boost.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBoost;
                 @Boost.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBoost;
                 @Boost.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBoost;
                 @Roll.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRoll;
                 @Roll.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRoll;
                 @Roll.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRoll;
+                @KeyboardCameraRotation.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnKeyboardCameraRotation;
+                @KeyboardCameraRotation.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnKeyboardCameraRotation;
+                @KeyboardCameraRotation.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnKeyboardCameraRotation;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
             {
-                @CameraRotation.started += instance.OnCameraRotation;
-                @CameraRotation.performed += instance.OnCameraRotation;
-                @CameraRotation.canceled += instance.OnCameraRotation;
+                @MouseCameraRotation.started += instance.OnMouseCameraRotation;
+                @MouseCameraRotation.performed += instance.OnMouseCameraRotation;
+                @MouseCameraRotation.canceled += instance.OnMouseCameraRotation;
                 @Boost.started += instance.OnBoost;
                 @Boost.performed += instance.OnBoost;
                 @Boost.canceled += instance.OnBoost;
                 @Roll.started += instance.OnRoll;
                 @Roll.performed += instance.OnRoll;
                 @Roll.canceled += instance.OnRoll;
+                @KeyboardCameraRotation.started += instance.OnKeyboardCameraRotation;
+                @KeyboardCameraRotation.performed += instance.OnKeyboardCameraRotation;
+                @KeyboardCameraRotation.canceled += instance.OnKeyboardCameraRotation;
             }
         }
     }
     public PlayerActions @Player => new PlayerActions(this);
     public interface IPlayerActions
     {
-        void OnCameraRotation(InputAction.CallbackContext context);
+        void OnMouseCameraRotation(InputAction.CallbackContext context);
         void OnBoost(InputAction.CallbackContext context);
         void OnRoll(InputAction.CallbackContext context);
+        void OnKeyboardCameraRotation(InputAction.CallbackContext context);
     }
 }

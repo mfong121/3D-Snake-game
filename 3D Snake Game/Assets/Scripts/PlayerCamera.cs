@@ -13,6 +13,9 @@ public class PlayerCamera : MonoBehaviour
     //Needs to be lower for larger objects, smaller for small objects
     private float rotationSpeedInDegrees = 1f;
     private float boostRotationModifier = 4;
+    
+    //Desired rotation
+    private Quaternion rotationDirection;
 
     private void Awake()
     {
@@ -22,9 +25,14 @@ public class PlayerCamera : MonoBehaviour
     }
     private void OnEnable()
     {
-        playerControls.Player.CameraRotation.performed += rotateCameraActionPerformed;
-        playerControls.Player.CameraRotation.Enable();
-
+        
+        playerControls.Player.MouseCameraRotation.performed += mouseRotateCameraActionPerformed;
+        
+        if (playerController.mouseControlsActive)
+        {
+            playerControls.Player.MouseCameraRotation.Enable();
+        }
+        
         playerControls.Player.Roll.performed += rollActionPerformed;
         playerControls.Player.Roll.Enable();
     }
@@ -34,19 +42,18 @@ public class PlayerCamera : MonoBehaviour
     {
         //move camera to follow player
         camera.transform.position = transform.position - camera.transform.forward * 4 + camera.transform.up * 1;
-        camera.transform.rotation = transform.rotation;
+        
+        //player head should follow camera slowly instead
+        transform.rotation = camera.transform.rotation;
     }
 
-    private void rotateCameraActionPerformed(InputAction.CallbackContext obj)
-    {
-        Vector2 deltaMousePos = playerControls.Player.CameraRotation.ReadValue<Vector2>();
-        float currentRotationSpeed=rotationSpeedInDegrees;
-        if (playerController.speedBoostActive)
-        {
-            currentRotationSpeed /= boostRotationModifier;
-        }
 
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, transform.rotation * Quaternion.Euler(-deltaMousePos.y, deltaMousePos.x, 0), currentRotationSpeed);
+    private void mouseRotateCameraActionPerformed(InputAction.CallbackContext obj)
+    {
+        //boost should not affect camera rotation speed, only player turning speed
+        Vector2 deltaMousePos = playerControls.Player.MouseCameraRotation.ReadValue<Vector2>();
+
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, transform.rotation * Quaternion.Euler(-deltaMousePos.y, deltaMousePos.x, 0), rotationSpeedInDegrees);
 
         /*var rotationDirection = Vector3.RotateTowards(transform.forward, new Vector3(transform.position.x + movementVector.x, transform.position.y + movementVector.y, transform.position.z), rotationSpeedInDegrees, 0);*/
         /*transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 0);*/
