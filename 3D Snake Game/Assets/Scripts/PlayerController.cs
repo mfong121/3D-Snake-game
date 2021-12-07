@@ -11,11 +11,21 @@ public class PlayerController: MonoBehaviour
     private float moveSpeed = 2f;
     [SerializeField]
     public bool mouseControlsActive = true;
+    [SerializeField]
+    private Camera camera; //This camera determines the player's rotation and direction
 
-    public float boostMultiplier = 2f;
-    public bool speedBoostActive = false;
 
-    
+    internal float boostMultiplier = 2f;
+    internal bool speedBoostActive = false;
+
+    // Update is called once per frame
+    void Update()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, transform.position + transform.forward, moveSpeed * Time.deltaTime);
+        //player should turn towards camera rotation & be affected by size, boost
+
+        //TODO: need to turn player transform rotation to match camera transform rotation
+    }
     void Awake()
     {
         playerControls = new PlayerControls();
@@ -28,24 +38,13 @@ public class PlayerController: MonoBehaviour
         playerControls.Player.Boost.canceled += speedBoostCancelled;
         playerControls.Player.Boost.Enable();
 
-        if (!mouseControlsActive)
-        {
-            playerControls.Player.KeyboardCameraRotation.performed += keyboardRotateCameraActionPerformed;
-        }
     }
 
     private void OnDisable()
     {
         playerControls.Player.MouseCameraRotation.Disable();
+        playerControls.Player.KeyboardCameraRotation.Disable();
         playerControls.Player.Boost.Disable();
-    }
-
-    private void keyboardRotateCameraActionPerformed(InputAction.CallbackContext obj)
-    {
-        //rotate player (not camera) according to player turning speed
-        //SHOULD ONLY BE ACTIVE WHEN MOUSECONTROLS DISABLED
-        Vector2 rotationInput = playerControls.Player.KeyboardCameraRotation.ReadValue<Vector2>();
-
     }
 
     private void speedBoostStarted(InputAction.CallbackContext obj)
@@ -61,10 +60,4 @@ public class PlayerController: MonoBehaviour
     }
 
 
-    // Update is called once per frame
-    void Update()
-    {
-        transform.position = Vector3.MoveTowards(transform.position, transform.position + transform.forward, moveSpeed * Time.deltaTime);
-        //player should turn towards camera rotation & be affected by size, boost
-    }
 }
