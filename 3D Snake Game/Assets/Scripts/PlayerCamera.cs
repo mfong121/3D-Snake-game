@@ -10,6 +10,6 @@ public class PlayerCamera : MonoBehaviour
     void LateUpdate()
     {
         //move camera to follow player
-        transform.position = target.transform.position - transform.forward * 4 + transform.up * 1;       
+        transform.position = target.transform.position - transform.forward * 4 + transform.up * 1;
     }    
 }

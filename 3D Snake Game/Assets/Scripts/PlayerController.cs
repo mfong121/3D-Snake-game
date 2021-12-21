@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,61 +8,88 @@ public class PlayerController: MonoBehaviour
     private PlayerControls playerControls;
     private InputAction movement;
 
+    //configurable settings
     [SerializeField]
-    private float moveSpeed = 2f;
+    public static float moveSpeed = 2f;
+    [SerializeField]
+    public static float bodySegmentLength = .75f;
     [SerializeField]
     public bool mouseControlsActive = true;
     [SerializeField]
     private Camera camera; //This camera determines the player's rotation and direction
-    [SerializeField]
+    /*[SerializeField]*/
     private Transform head;
+    private Transform body;
+    [SerializeField]
+    public Transform[] headVariants;
+    [SerializeField]
+    public Transform[] bodyVariants;
 
+    [SerializeField]
+    [Range(0, 1)]
+    public int skinOption;
+
+    private int wormLength = 0;
+    private Transform previousSegment;
 
     //Desired rotation
     /*private Vector3 rotationDirection;*/
     private Quaternion rotationDirection;
 
-    internal float boostMultiplier = 2f;
+    internal float boostMultiplier = 5f;
+
     internal bool speedBoostActive = false;
 
-    private float keyboardRotationSpeedInDegrees = .5f;
-    private float mouseRotationSpeedInDegrees = .01f;
-
+    private float keyboardRotationSpeed = .25f;
+    private float mouseRotationSpeed = .01f;
+    private float headRotationSpeed = .25f;
     private float rollAngle = 0;
     private float rollDirection = 0;
+
+    private Transform selectedHeadVariant;
+    private Transform selectedBodyVariant;
+    private bool gameOver = false;
+
+
 
     void Awake()
     {
         playerControls = new PlayerControls();
+        selectedHeadVariant = headVariants[skinOption];
+        selectedBodyVariant = bodyVariants[skinOption];
+
     }
-
-
-
+    private void Start()
+    {
+        head = transform.GetChild(0);
+        body = transform.GetChild(1);
+        InstantiateWorm();
+    }
     // Update is called once per frame
     void Update()
     {
-/*        transform.position = Vector3.MoveTowards(transform.position, transform.position + transform.forward, moveSpeed * Time.deltaTime);*/
+        /*        transform.position = Vector3.MoveTowards(transform.position, transform.position + transform.forward, moveSpeed * Time.deltaTime);*/
         //player should turn towards camera rotation & be affected by size, boost
 
-
         //sets rotation speed to mouseRotationSpeed if mouseControlsActive, and keyboardRotationSpeed if not
-        var cameraRotationSpeed = mouseControlsActive ? mouseRotationSpeedInDegrees : keyboardRotationSpeedInDegrees;
-        Debug.Log(cameraRotationSpeed);
+        var cameraRotationSpeed = mouseControlsActive ? mouseRotationSpeed : keyboardRotationSpeed;
+        /*Debug.Log(cameraRotationSpeed);*/
         //player head should follow camera slowly instead
 
         /*        camera.transform.rotation = Quaternion.LookRotation(newDirection);*/
 /*        camera.transform.rotation = Quaternion.RotateTowards(transform.rotation, transform.rotation * rotationDirection, cameraRotationSpeed);*/
-        camera.transform.Rotate(rotationDirection.eulerAngles.x, rotationDirection.eulerAngles.y, 0); //TODO: This makes rotation too fast. Find a way to slow it
+        camera.transform.Rotate(rotationDirection.eulerAngles.x, rotationDirection.eulerAngles.y, 0); 
 
-        rollAngle = rollDirection * keyboardRotationSpeedInDegrees;
-        camera.transform.Rotate(transform.forward, rollAngle);
+        rollAngle = rollDirection * keyboardRotationSpeed;
+        camera.transform.Rotate(head.forward, rollAngle,Space.World);
 
 
         //TODO: need to turn player transform rotation to match camera transform rotation
         /*Quaternion.RotateTowards(transform)*/
+        head.rotation = Quaternion.RotateTowards(head.rotation, camera.transform.rotation, headRotationSpeed);
+        head.transform.position += head.transform.forward * moveSpeed * Time.deltaTime; //move forward
         /*head.Rotate(transform.forward, 3);*/
     }
-
 
     private void OnEnable()
     {
@@ -113,20 +141,16 @@ public class PlayerController: MonoBehaviour
 
     private void keyboardRotateCameraActionPerformed(InputAction.CallbackContext obj)
     {
-        //rotate camera according to player turning speed
-        //SHOULD ONLY BE ACTIVE WHEN MOUSECONTROLS DISABLED
         Vector2 rotationInput = playerControls.Player.KeyboardCameraRotation.ReadValue<Vector2>();
-        float currentRotationSpeed = keyboardRotationSpeedInDegrees;
-        rotationDirection = Quaternion.Euler(-rotationInput.y, rotationInput.x, 0);
-        /*rotationDirection = new Vector3(rotationInput.x, rotationInput.y, 0);*/
-        /*transform.rotation = Quaternion.RotateTowards(transform.rotation, transform.rotation * Quaternion.Euler(rotationInput.y, rotationInput.x, 0), currentRotationSpeed);*/
-
+        Vector3 rotationValues = new Vector3(-rotationInput.y, rotationInput.x, 0) * keyboardRotationSpeed;
+        rotationDirection = Quaternion.Euler(rotationValues);
     }
+
     private void mouseRotateCameraActionPerformed(InputAction.CallbackContext obj)
     {
         //boost should not affect camera rotation speed, only player turning speed
         Vector2 deltaMousePos = playerControls.Player.MouseCameraRotation.ReadValue<Vector2>();
-        Debug.Log(deltaMousePos);
+        /*Debug.Log(deltaMousePos);*/
         //Rotates the camera towards the input
         rotationDirection = Quaternion.Euler(-deltaMousePos.y, deltaMousePos.x, 0);
         /*rotationDirection = new Vector3(deltaMousePos.x, deltaMousePos.y, 0);*/
@@ -154,6 +178,43 @@ public class PlayerController: MonoBehaviour
     private void rollActionCancelled(InputAction.CallbackContext obj)
     {
         rollDirection = 0;
+    }
+
+    void InstantiateWorm()
+    {
+        Transform headSegment = Instantiate(selectedHeadVariant,head.position,Quaternion.identity,head);
+        previousSegment = head;
+        for (int i = 0; i < wormLength; i++)
+        {
+            Transform bodySegment = Instantiate(selectedBodyVariant, previousSegment.position -head.forward * bodySegmentLength, Quaternion.identity, body);
+            bodySegment.GetComponent<BodyBehavior>().target = previousSegment;
+            previousSegment = bodySegment;
+        }
+    }
+
+    public void AddSegment()
+    {
+        Transform bodySegment = Instantiate(selectedBodyVariant, previousSegment.position - head.forward * bodySegmentLength, Quaternion.identity, body);
+        bodySegment.GetComponent<BodyBehavior>().target = previousSegment;
+        previousSegment = bodySegment;
+        wormLength++;
+    }
+
+    private void OnGUI()
+    {
+        GUI.Label(new Rect(30,30, 200, 200), "Length: " + wormLength + "");
+
+        if (gameOver)
+        {
+            GUI.color = Color.black;
+            GUI.Label(new Rect(Screen.width / 2 - 100, Screen.height / 2, 200, 200), "Game Over:\nYou lost!\nWith a final size of " + wormLength + ".");
+        }
+    }
+    public void gameEnd()
+    {
+        moveSpeed = 0;
+        this.OnDisable();
+        gameOver = true;
     }
 
 }
